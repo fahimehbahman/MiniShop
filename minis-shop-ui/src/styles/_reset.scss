@@ -1,0 +1,14 @@
+/**normalize CSS 
+when naming started with underline it means it is parial and doesnt compile individualy and 
+should be import to other scss file */
+
+* {
+
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+  }

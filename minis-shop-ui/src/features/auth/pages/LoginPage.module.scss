@@ -1,0 +1,47 @@
+@use "../../../styles/variables" as *;
+
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input {
+  padding: 12px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  font-size: 15px;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+  }
+}
+
+.button {
+  padding: 12px;
+  border: none;
+  border-radius: $radius;
+  background: $primary;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: $primary-hover;
+  }
+}
+
+.error {
+  color: $error;
+  font-size: 14px;
+}

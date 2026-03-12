@@ -1,0 +1,30 @@
+@use "./reset";
+@use "./variables" as *;
+
+body {
+  background: $background;
+}
+
+html, body, #root {
+    height: 100%;
+    width: 100%;
+  }
+
+.page-center {
+    min-height: 100vh; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    //clamp(min , preferred , max)
+    padding: clamp(20px, 5vw, 80px);
+  }
+  
+  .page-card {
+    width: 100%;
+    max-width: 420px;
+  
+    background: white;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    padding: clamp(20px, 4vw, 32px);
+  }
