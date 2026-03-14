@@ -1,4 +1,5 @@
 ﻿using MiniShop.Application.Interfaces;
+using Prometheus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,16 @@ namespace MiniShop.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IJwtTokenGenerator _jwt;
+        private static readonly Counter UserLoggiedIn =
+        Metrics.CreateCounter(
+            "minishop_user_loggedin_total",
+            "Total number of user loggin"
+        );
+        private static readonly Counter UserCantNotLoggedin =
+            Metrics.CreateCounter(
+                "minishop_user_cannot_loggedin_total",
+                "Total number of user loggin"
+            );
 
         public AuthService(IUserRepository userRepository, IJwtTokenGenerator jwt)
         {
@@ -19,10 +30,20 @@ namespace MiniShop.Application.Services
         }
         public async Task<string> LoginAsync(string userName)
         {
-            var user = await _userRepository.GetByUserNameAsync(userName)
-                        ?? throw new InvalidOperationException("User not found");
+            try
+            {
+                var user = await _userRepository.GetByUserNameAsync(userName)
+                  ?? throw new InvalidOperationException("User not found");
+                UserLoggiedIn.Inc();
+                return _jwt.Generate(user);
+            }
+            catch (Exception)
+            {
+                UserCantNotLoggedin.Inc();
+                throw;
+            }
 
-            return _jwt.Generate(user);
+
         }
     }
 }

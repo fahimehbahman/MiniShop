@@ -14,12 +14,32 @@ services:
       build:
         context: .
         dockerfile: MiniShop.Api/Dockerfile
-      ports:
+      ports: # 5000 for localhost & 8080 for container
         - "5000:8080"
+      container_name: minishop-api # esme container 
+      labels:
+         logging: "promtail"
+         service: "MiniShop-api"
       depends_on:
         - sqlserver
       environment:
          ConnectionStrings__DefaultConnection: ${DB_CONNECTION}
+  loki:
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+    - loki-storage:/loki
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "4000:3000"
+    depends_on:
+      - loki
+    volumes:
+    - grafana-storage:/var/lib/grafana
 
   nginx:
     image: nginx:alpine
@@ -31,6 +51,23 @@ services:
     depends_on:
       - api
 
+  promtail:
+    image: grafana/promtail:2.9.0
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail-config.yaml:/etc/promtail/promtail.yaml
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - loki
+      
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
   ui:
     build:
       context: ./minis-shop-ui
@@ -39,4 +76,6 @@ services:
       - "3000:80"
     depends_on:
         - nginx  
-        
+volumes:
+  grafana-storage:
+  loki-storage:

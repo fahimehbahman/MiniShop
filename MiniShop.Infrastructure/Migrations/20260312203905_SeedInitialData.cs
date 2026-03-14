@@ -15,7 +15,7 @@ namespace MiniShop.Infrastructure.Migrations
                 columns: new[] { "UserId", "UserName", "Role" },
                 values: new object[]
                 {
-                    new Guid("3f2c9c41-9f5c-4a73-bb92-6e7a4a9b1f6d"),
+                    new Guid("4f2c9c41-9f5c-4a73-bb92-6e7a4a9b1f6d"),
                     "admin",
                     1
                 });
@@ -33,7 +33,7 @@ namespace MiniShop.Infrastructure.Migrations
                 },
                 values: new object[]
                 {
-                    new Guid("7b91e2d3-5c6a-4f8b-a0d9-1e3c7f4b6a92"),
+                    new Guid("8b91e2d3-5c6a-4f8b-a0d9-1e3c7f4b6a92"),
                     "Laptop",
                     1200,
                     10,
@@ -49,13 +49,13 @@ namespace MiniShop.Infrastructure.Migrations
             migrationBuilder.DeleteData(
                 table: "Users",
                 keyColumn: "UserId",
-                keyValue: new Guid("3f2c9c41-9f5c-4a73-bb92-6e7a4a9b1f6d")
+                keyValue: new Guid("4f2c9c41-9f5c-4a73-bb92-6e7a4a9b1f6d")
             );
 
             migrationBuilder.DeleteData(
                 table: "Products",
                 keyColumn: "ProductId",
-                keyValue: new Guid("7b91e2d3-5c6a-4f8b-a0d9-1e3c7f4b6a92")
+                keyValue: new Guid("8b91e2d3-5c6a-4f8b-a0d9-1e3c7f4b6a92")
             );
         }
     }
