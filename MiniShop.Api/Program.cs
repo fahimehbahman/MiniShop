@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using MiniShop.Infrastructure.Security;
 using MiniShop.Domain.Pricing;
+using Serilog.Sinks.Grafana.Loki;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ShopDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sql => sql.EnableRetryOnFailure()
+    ));
 
 // DI
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -106,12 +109,21 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:5173")
+                .WithOrigins("http://localhost:3000")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
         });
-}); 
+});
+
+//// Serilog
+//Log.Logger = new LoggerConfiguration()
+//    .Enrich.FromLogContext()
+//    .WriteTo.Console()
+//    .WriteTo.GrafanaLoki("http://localhost:3100")
+//    .CreateLogger();
+
+//builder.Host.UseSerilog();
 
 var app = builder.Build();
 
@@ -123,6 +135,12 @@ if (app.Environment.IsDevelopment())
 {
     //app.UseSwagger();
    //  app.UseSwaggerUI();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
+    db.Database.Migrate();
 }
 
 app.UseHttpsRedirection();

@@ -15,7 +15,7 @@ import axios from "axios"
  * apiClient.post("/login", data)
  */
 const apiClient = axios.create({
-    baseURL: "https://localhost:7256/api",
+    baseURL: "https://localhost/api/",
     withCredentials: true
   });
   

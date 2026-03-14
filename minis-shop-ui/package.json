@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "start": "HTTPS=true react-scripts start",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

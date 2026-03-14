@@ -21,3 +21,4 @@ build/
 Thumbs.db
 
 appsettings.Development.json
+.env
