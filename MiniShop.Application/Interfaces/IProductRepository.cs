@@ -13,6 +13,6 @@ namespace MiniShop.Application.Interfaces
         Task<List<MiniShop.Domain.Entities.Product>> GetAllAsync();
         Task<List<MiniShop.Domain.Entities.Product>> FilterByName(string search);
         Task AddAsync(MiniShop.Domain.Entities.Product product);
-        Task UpdateAsync(MiniShop.Domain.Entities.Product product);
+        Task<Guid> UpdateAsync(MiniShop.Domain.Entities.Product product);
     }
 }

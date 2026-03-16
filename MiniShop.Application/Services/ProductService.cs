@@ -1,4 +1,5 @@
-﻿using MiniShop.Application.Interfaces;
+﻿using AutoMapper;
+using MiniShop.Application.Interfaces;
 using MiniShop.Application.Product;
 using MiniShop.Domain.Entities;
 using System;
@@ -13,10 +14,13 @@ namespace MiniShop.Application.Services
     {
         private readonly IProductRepository _productRepository;
         private readonly IUnitOfWork _uw;
-        public ProductService(IProductRepository productRepository, IUnitOfWork uw) 
+
+        public ProductService(IProductRepository productRepository, IUnitOfWork uw)
+
         {
             _productRepository = productRepository;
             _uw = uw;
+
         }
         public async Task<Guid> CreateProductAsync(string name, decimal price, int stock)
         {
@@ -34,9 +38,32 @@ namespace MiniShop.Application.Services
             return product.ProductId;
         }
 
-        public async Task<List<MiniShop.Domain.Entities.Product>> GetAllAsync()
+        public async Task<List<ProductsResponse>> GetAllAsync()
         {
-            return await _productRepository.GetAllAsync();
+            List<MiniShop.Domain.Entities.Product> products = await _productRepository.GetAllAsync();
+            return products.Select(p => new ProductsResponse
+                  (
+                       p.ProductId,
+                       p.Name,
+                       p.Price,
+                       p.Stock
+                  )).ToList();
+        }
+
+        public async Task<ProductsResponse> GetProductByIdAsync(string id)
+        {
+            MiniShop.Domain.Entities.Product? product;
+            product = await _productRepository.GetByIdAsync(Guid.Parse(id));
+            if (product != null)
+                return new ProductsResponse
+                      (
+                           product.ProductId,
+                           product.Name,
+                           product.Price,
+                           product.Stock
+                      );
+            else
+                return null;
         }
 
         public async Task<List<ProductsResponse>> GetProducts(string? search)
@@ -55,6 +82,15 @@ namespace MiniShop.Application.Services
                  p.Price,
                  p.Stock
             )).ToList();
+        }
+
+        public async Task<Guid> UpdateProductAsync(ProductDto productDto)
+        {
+            MiniShop.Domain.Entities.Product? product;
+            product = await _productRepository.GetByIdAsync(productDto.ProductId);
+            product.Name = productDto.Name;
+            product.Price = productDto.Price;
+            return await _productRepository.UpdateAsync(product);
         }
     }
 }

@@ -34,10 +34,11 @@ namespace MiniShop.Infrastructure.Repositories
             => await _context.Products.
                               Where(predicate => predicate.Name.Contains(search))
                              .ToListAsync();
-        public async Task UpdateAsync(Product product)
+        public async Task<Guid> UpdateAsync(Product product)
         {
             _context.Products.Update(product);
-            await Task.CompletedTask;
+            await _context.SaveChangesAsync();
+            return product.ProductId;
         }
     }
 }

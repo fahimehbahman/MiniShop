@@ -1,8 +1,10 @@
 ﻿using MiniShop.Application.Interfaces;
 using MiniShop.Domain.Entities;
 using MiniShop.Domain.Pricing;
+using Prometheus;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +17,11 @@ namespace MiniShop.Application.Services
         private readonly IProductRepository _productRepository;
         private readonly IPriceStrategy _priceStrategy;
         private readonly IUnitOfWork _uow;
+        private static readonly Counter OrdersCreated =
+                Metrics.CreateCounter(
+                    "minishop_orders_created_total",
+                    "Total number of orders created"
+                );
         public OrderService(IOrderRepository orderRepository, IProductRepository productRepository,
             IUnitOfWork uow, IPriceStrategy priceStrategy)
         {
@@ -44,7 +51,7 @@ namespace MiniShop.Application.Services
 
             await _orderRepository.AddAsync(order);
             await _uow.CommitAsync();
-
+            OrdersCreated.Inc();
             return order.OrderId;
         }
 

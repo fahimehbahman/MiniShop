@@ -12,6 +12,12 @@ using Microsoft.Extensions.DependencyInjection;
 using MiniShop.Infrastructure.Security;
 using MiniShop.Domain.Pricing;
 using Serilog.Sinks.Grafana.Loki;
+using Serilog;
+using Prometheus;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using MiniShop.Api.GraphQL;
+using MiniShop.Application.Mapping;
+using MiniShop.Api.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,8 +47,9 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<EmbeddingService>();
 builder.Services.AddScoped<IUserService, UserService>();
-
 builder.Services.AddSingleton<SearchService>();
+
+
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"];
@@ -117,13 +124,20 @@ builder.Services.AddCors(options =>
 });
 
 //// Serilog
-//Log.Logger = new LoggerConfiguration()
-//    .Enrich.FromLogContext()
-//    .WriteTo.Console()
-//    .WriteTo.GrafanaLoki("http://localhost:3100")
-//    .CreateLogger();
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.GrafanaLoki("http://localhost:3100")
+    .CreateLogger();
 
-//builder.Host.UseSerilog();
+// Connect serilogprovider to Ilogger az provider (we have this implementation in this package Serilog.AspNetCore - ILogger -> ILoggerfactory -> IloggerProvider -> SerilogLogger)
+builder.Host.UseSerilog();
+
+//graphQl
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<MiniShop.Api.GraphQL.Query>()
+    .AddMutationType<Mutation>();
 
 var app = builder.Build();
 
@@ -143,12 +157,23 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+//graph QL
+
+
 app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
+
 app.UseRouting();
+
+app.UseCors("AllowReactApp");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGraphQL();
+
 app.MapControllers();
+
+app.UseHttpMetrics();
+app.MapMetrics();
 
 app.Run();

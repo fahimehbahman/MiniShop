@@ -20,7 +20,7 @@ namespace MiniShop.Api
             _productService = productService;
         }
 
-        [Authorize(Roles = "Customer")]
+       
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

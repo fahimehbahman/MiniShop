@@ -6,13 +6,15 @@ namespace MiniShop.Domain.Entities;
 public class Product
 {
     public Guid ProductId { get; private set; }
-    public string Name { get; private set; } = null!;
-    public decimal Price { get; private set; }
+    public string Name { get; set; } = null!;
+    public decimal Price { get;  set; }
     public int Stock { get; private set; }
     public DiscountType DiscountType { get; private set; }
     public decimal DiscountValue { get; private set; }
 
-    public Product(string name, decimal price, int stock)
+        public Product()
+        { }
+        public Product(string name, decimal price, int stock)
     {
         ProductId = Guid.NewGuid();
         Name = name;
