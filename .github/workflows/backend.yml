@@ -37,9 +37,9 @@ jobs:
       - name: Restore
         run: dotnet restore MiniShop.sln
       
-      #proje ro build mikone
+      #proje ro build mikone , config pishfarz to debuge hast ke ma ovordimesh ro release 
       - name: Build
-        run: dotnet build MiniShop.sln --no-restore
+        run: dotnet build MiniShop.sln --configuration Release --no-restore
 
       #upload artifacthaye project ha ro 
       - name: Upload build artifact
