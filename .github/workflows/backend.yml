@@ -1,0 +1,118 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'MiniShop.Api/**'
+      - 'MiniShop.Application/**'
+      - 'MiniShop.Domain/**'
+      - 'MiniShop.Infrastructure/**'
+  pull_request:
+    paths:
+      - 'MiniShop.Api/**'
+      - 'MiniShop.Application/**'
+      - 'MiniShop.Domain/**'
+      - 'MiniShop.Infrastructure/**'
+
+jobs:
+  #chon har job roye ye machine joda run mishe va runner khodesho dare bayad setup 
+  #va restore mojadad barash anjam beshe ya natayeje build be sorate artifact be job dovom ersal beshe 
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      # faghat runtime .net ro nasb mikone ( in marhale built-in hast setup node/setup python ham darim)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+     
+      # package haye proje ro miare 
+      - name: Restore
+        run: dotnet restore MiniShop.sln
+      
+      #proje ro build mikone
+      - name: Build
+        run: dotnet build MiniShop.sln --no-restore
+
+      #upload artifacthaye project ha ro 
+      - name: Upload build artifact
+        #ye action az pishtarif shode dar github action hast 
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output #mesle esme folder hast ke artifactha dakheleshan
+          path: |
+            MiniShop.Api/bin/Release
+            MiniShop.Application/bin/Release
+            MiniShop.Domain/bin/Release
+            MiniShop.Infrastructure/bin/Release
+
+  test:
+    runs-on: ubuntu-latest
+    #tartib moheme bayad needs ro aval bezari ke darsorati ke job ghabli be moshkel khord in ejra nashe 
+    needs: build
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+
+      # proje ro test mikone
+      - name: Test
+        run: dotnet test MiniShop.sln --no-build # age build ghablan anjam shode bashe dar marhaleye test mizanim no-build 
+  
+  docker:
+    needs: test
+
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    # folderi ke azash permission mikhaim dar inja ba job build fargh mikone , dar build folder source ma repository hast 
+    # vali imja ghcr hast / dastrasi default baraye hardo hamishe read ast , age taghir kone bayad mesle inja benevisim 
+    permissions:
+      contents: read # in workflow mitone be mohtavaye repository codeha dastrasi dashte bashe.
+      packages: write # mitone package haye jadid ro dar github container registery upload kone.
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io # github container registery
+          username: ${{ github.actor }} # in meghdar khodesh ba useri ke push bezane por mishe 
+          password: ${{ secrets.GITHUB_TOKEN }}  # khod github dar lahzeye push barat misaze va hamon moghe 
+          #estefade mikonio va badesh expire mishe 
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/minishop-api
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: MiniShop.Api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/minishop-api:latest
+            ghcr.io/${{ github.repository }}/minishop-api:${{ github.sha }}
