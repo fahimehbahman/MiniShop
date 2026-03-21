@@ -105,7 +105,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/minishop-api
+          images: ghcr.io/fahimehbahman/minishop-api
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -114,5 +114,5 @@ jobs:
           file: MiniShop.Api/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/minishop-api:latest
-            ghcr.io/${{ github.repository }}/minishop-api:${{ github.sha }}
+            ghcr.io/fahimehbahman/minishop-api:latest
+            ghcr.io/fahimehbahman/minishop-api:${{ github.sha }}
