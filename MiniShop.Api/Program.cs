@@ -22,7 +22,9 @@ using MiniShop.Api.Mapping;
 var builder = WebApplication.CreateBuilder(args);
 
 // =====================
-// Add services ----v1
+
+// Add services ----v4
+
 // =====================
 
 builder.Services.AddControllers();
