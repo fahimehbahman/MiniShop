@@ -76,11 +76,11 @@ jobs:
       - name: Test
         run: dotnet test MiniShop.sln --no-build # age build ghablan anjam shode bashe dar marhaleye test mizanim no-build 
   
-  docker:
+  docker: #in job masoole build image va push be ghcr ast 
     needs: test
 
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # faghat roye branch main ejra shavad
+    runs-on: ubuntu-latest #yek mashin ubuntu baraye ejra mikhad 
 
     # folderi ke azash permission mikhaim dar inja ba job build fargh mikone , dar build folder source ma repository hast 
     # vali imja ghcr hast / dastrasi default baraye hardo hamishe read ast , age taghir kone bayad mesle inja benevisim 
@@ -88,9 +88,9 @@ jobs:
       contents: read # in workflow mitone be mohtavaye repository codeha dastrasi dashte bashe.
       packages: write # mitone package haye jadid ro dar github container registery upload kone.
 
-    steps:
+    steps: # list karhaii ke in job bayad anjam bede 
 
-      - name: Checkout
+      - name: Checkout # kole repo ro clone mikone 
         uses: actions/checkout@v3
 
       - name: Login to GitHub Container Registry
@@ -101,7 +101,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}  # khod github dar lahzeye push barat misaze va hamon moghe 
           #estefade mikonio va badesh expire mishe 
 
-      - name: Extract metadata
+      - name: Extract metadata # in step baraye sakht tag va label hast
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -111,7 +111,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: MiniShop.Api/Dockerfile
+          file: MiniShop.Api/Dockerfile # masire dockerfile roye solutionemon 
           push: true
           tags: |
             ghcr.io/fahimehbahman/minishop-api:latest
