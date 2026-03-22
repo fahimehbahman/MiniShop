@@ -116,3 +116,13 @@ jobs:
           tags: |
             ghcr.io/fahimehbahman/minishop-api:latest
             ghcr.io/fahimehbahman/minishop-api:${{ github.sha }}
+
+      - name: Build and push Migration image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: MiniShop.Api/Dockerfile.migration
+          push: true
+          tags: |
+            ghcr.io/fahimehbahman/minishop-migration:latest
+            ghcr.io/fahimehbahman/minishop-migration:${{ github.sha }}
